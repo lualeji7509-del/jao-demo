@@ -208,7 +208,24 @@ function speak(text, cb){
   var g=setTimeout(fin, Math.min(15000,1800+plain.length*78));
   speechSynthesis.speak(u);
 }
-document.getElementById('mute').onclick=function(){ muted=!muted; this.textContent=muted?'🔇':'🔊'; if(muted){try{speechSynthesis.cancel();}catch(e){} talking(false);} };
+/* ===== VOZ PRE-GRABADA (Ximena) con respaldo al navegador ===== */
+var voxEl=new Audio(); voxEl.preload='auto';
+function playLine(idx, text, cb){
+  if(muted){ talking(true); var ms=Math.min(9000,1200+(text||'').replace(/<[^>]+>/g,'').length*46); return setTimeout(function(){talking(false); cb&&cb();},ms); }
+  var done=false;
+  var fin=function(){ if(done)return; done=true; voxEl.onended=null; voxEl.onerror=null; talking(false); cb&&cb(); };
+  var fallback=function(){ if(done)return; done=true; voxEl.onended=null; voxEl.onerror=null; speak(text, cb); };
+  try{ speechSynthesis.cancel(); }catch(e){}
+  voxEl.onplaying=function(){ talking(true); };
+  voxEl.onended=fin;
+  voxEl.onerror=fallback;
+  try{
+    voxEl.src='voz/'+idx+'.mp3'; voxEl.currentTime=0;
+    var p=voxEl.play();
+    if(p&&p.catch) p.catch(function(){ fallback(); });
+  }catch(e){ fallback(); }
+}
+document.getElementById('mute').onclick=function(){ muted=!muted; this.textContent=muted?'🔇':'🔊'; if(muted){try{speechSynthesis.cancel();}catch(e){} try{voxEl.pause();}catch(e){} talking(false);} };
 
 var bubble=document.getElementById('bubble');
 function say(text, adv){ bubble.classList.remove('empty'); bubble.classList.remove('bubble'); void bubble.offsetWidth; bubble.classList.add('bubble'); bubble.innerHTML=text + (adv?('<br><span class="adv">💡 '+adv+'</span>'):''); }
@@ -364,6 +381,7 @@ var SCENES=[
 ];
 
 /* ===== MOTOR ===== */
+(function(){ var n=0; SCENES.forEach(function(sc){ sc.steps.forEach(function(st){ st.aud=n++; }); }); })();
 var scr=document.getElementById('scr'), nextBtn=document.getElementById('next');
 var pfill=document.getElementById('pfill'), pcount=document.getElementById('pcount'), psession=document.getElementById('psession');
 var si=0, ti=0, timer=null;
@@ -397,7 +415,7 @@ function runStep(){
   clearHot(); clearTimer();
   say(st.say, st.adv); nextBtn.disabled=false;
   if(st.toast){ var tt=scr.querySelector('#scn-toast'); if(tt) setTimeout(function(){tt.style.display='flex';},700); }
-  speak(st.say, function(){
+  playLine(st.aud, st.say, function(){
     if(st.hot){ armHot(st.hot, st.hint); timer=setTimeout(goNext, 7000); }
     else if(st.pin){ pinEnter(goNext); }
     else if(st.reveal){ var e=scr.querySelector(st.reveal); if(e)e.style.display='block'; timer=setTimeout(goNext, 1100); }
@@ -414,9 +432,9 @@ function goNext(){
 function finish(){ nextBtn.textContent='Reiniciar ↺'; jstate.textContent='fin'; }
 nextBtn.onclick=function(){
   if(si===SCENES.length-1 && ti===SCENES[si].steps.length-1){ restart(); return; }
-  try{speechSynthesis.cancel();}catch(e){} talking(false); goNext();
+  try{speechSynthesis.cancel();}catch(e){} try{voxEl.pause();}catch(e){} talking(false); goNext();
 };
-function restart(){ clearTimer(); si=0; ti=0; nextBtn.textContent='Siguiente ▸'; bubble.classList.add('empty'); document.getElementById('intro').style.display='flex'; try{speechSynthesis.cancel();}catch(e){} talking(false); }
+function restart(){ clearTimer(); si=0; ti=0; nextBtn.textContent='Siguiente ▸'; bubble.classList.add('empty'); document.getElementById('intro').style.display='flex'; try{speechSynthesis.cancel();}catch(e){} try{voxEl.pause();}catch(e){} talking(false); }
 document.getElementById('restart').onclick=restart;
 document.getElementById('startBtn').onclick=function(){
   document.getElementById('intro').style.display='none';
