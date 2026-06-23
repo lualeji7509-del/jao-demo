@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Elige la voz de Jarvis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'DM Sans',-apple-system,sans-serif}
+body{background:radial-gradient(120% 70% at 50% -8%,#33536f,#1C2B3A 50%,#0a131c);color:#fff;min-height:100dvh;padding:26px 18px 40px;display:flex;flex-direction:column;align-items:center}
+.kick{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#d9b24e;margin-bottom:8px}
+h1{font-size:24px;font-weight:900;text-align:center;line-height:1.2;max-width:340px}
+p.lead{color:#aebccb;font-size:14px;text-align:center;margin:9px 0 22px;max-width:330px;line-height:1.5}
+.card{width:100%;max-width:380px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:15px 16px;margin-bottom:13px;backdrop-filter:blur(6px)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.tag{display:inline-block;width:30px;height:30px;line-height:30px;text-align:center;border-radius:50%;background:linear-gradient(145deg,#B8952A,#e7c976);color:#1C2B3A;font-weight:900;font-size:15px;flex:0 0 30px}
+.nm{font-weight:800;font-size:15px}
+.dsc{font-size:12px;color:#9fb4c6;margin-top:1px}
+audio{width:100%;margin-top:4px;filter:saturate(.9)}
+.note{color:#7d92a5;font-size:12.5px;text-align:center;max-width:330px;margin-top:14px;line-height:1.5}
+.foot{margin-top:18px;background:linear-gradient(135deg,#B8952A,#d9b24e);color:#1C2B3A;font-weight:800;font-size:14px;padding:13px 20px;border-radius:13px;text-align:center;max-width:380px}
+</style></head><body>
+<div class="kick">Sistema de gestión · JAO</div>
+<h1>Elige la voz de Jarvis 🎙️</h1>
+<p class="lead">Escucha las 4 y dime cuál te gusta más (A, B, C o D). Esa será la voz de toda la presentación, igual en cualquier móvil.</p>
+
+<div class="card"><div class="row"><span class="tag">A</span><div style="flex:1"><div class="nm">Elvira · enérgica</div><div class="dsc">España · comercial, con gancho</div></div></div><audio controls preload="none" src="A_elvira_energica.mp3"></audio></div>
+<div class="card"><div class="row"><span class="tag">B</span><div style="flex:1"><div class="nm">Ximena · enérgica</div><div class="dsc">España · clara y resuelta</div></div></div><audio controls preload="none" src="B_ximena_energica.mp3"></audio></div>
+<div class="card"><div class="row"><span class="tag">C</span><div style="flex:1"><div class="nm">Dalia · comercial</div><div class="dsc">Acento latino · cálida y vendedora</div></div></div><audio controls preload="none" src="C_dalia_comercial.mp3"></audio></div>
+<div class="card"><div class="row"><span class="tag">D</span><div style="flex:1"><div class="nm">Elvira · cálida</div><div class="dsc">España · más suave y de confianza</div></div></div><audio controls preload="none" src="D_elvira_calida.mp3"></audio></div>
+
+<div class="note">Son voces neuronales reales (calidad de estudio). Si ninguna te convence del todo, te genero más opciones o ajusto el tono.</div>
+<div class="foot">👉 Dime la letra de tu favorita y la aplico a toda la demo</div>
+</body></html>
