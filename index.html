@@ -349,11 +349,13 @@ var SCENES=[
   {say:"Y si el proveedor todavía no existe, lo detecto y lo creo en el momento. Hasta puedo repartir el coste entre varias obras.", adv:"Diez segundos por factura en vez de media hora. Ahorras dinero y personal."}
 ]},
 { ses:'En la oficina', screen:appShell('Presupuesto #0142','Cliente: Bar Roma',
-  '<div class="pill gold" style="margin-bottom:9px">🎙️ Dictado por voz → partidas</div>'+
+  '<div class="seg" style="margin-bottom:10px"><b class="on">🎙️ Dictar</b><b>📷 Subir foto/PDF</b><b>🔍 Comparar mercado</b></div>'+
   '<div class="card"><div class="row"><span class="sub">Instalación eléctrica</span><b>2.140 €</b></div><div class="line"></div><div class="row"><span class="sub">Alicatado y pintura</span><b>1.690 €</b></div><div class="line"></div><div class="row"><b class="h">Total (IVA incl.)</b><b class="h" style="color:var(--gold)">4.650 €</b></div></div>'+
-  '<div class="row" style="gap:9px"><button class="btn ghost" style="flex:1">🖨️ PDF</button><button class="btn gold" style="flex:1">→ Convertir en factura</button></div>',2,'admin'), steps:[
-  {say:"Los presupuestos también van rápido: el jefe me dicta las partidas hablando y yo las ordeno con sus precios y el IVA."},
-  {say:"Sale en PDF con vuestro logo y vuestro NIF para enviarlo al cliente. Y cuando lo acepta, se convierte en factura con un clic.", adv:"Dos minutos en vez de media hora, y con mejor imagen ante el cliente."}
+  '<div class="card" style="background:var(--gold-soft);border-color:#ecd9a0"><div style="font-size:12px;color:#5e4a16;font-weight:700">💡 Mercado (en vivo): instalación eléctrica 35–45 €/h · tu precio, en rango ✅</div></div>'+
+  '<div class="row" style="gap:9px"><button class="btn ghost" style="flex:1">🖨️ PDF</button><button class="btn gold" style="flex:1">→ Factura</button></div>',2,'admin'), steps:[
+  {say:"Los presupuestos vuelan. Me dictas las partidas hablando, o subes presupuestos antiguos en foto o PDF, y la app los lee y aprende tus precios."},
+  {say:"Cada presupuesto que haces alimenta tu propia base de datos. Así, cada vez tardas menos y afinas más, con tus precios de siempre a mano."},
+  {say:"Y antes de cerrar el precio, comparo en tiempo real con el mercado, mano de obra y material, para que no te quedes corto ni te pases. Luego sale en PDF y, si lo aceptan, se convierte en factura con un clic.", adv:"Presupuestos más rápidos, más precisos y más competitivos."}
 ]},
 { ses:'En la oficina', screen:appShell('Almacén','Stock y materiales',
   '<div class="kpi" style="margin-bottom:11px"><div class="k"><div class="v" style="color:#D97706">3</div><div class="l">Bajo stock</div></div><div class="k"><div class="v" style="color:var(--rojo)">1</div><div class="l">Sin stock</div></div></div>'+
