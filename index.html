@@ -156,6 +156,11 @@ body{background:#0a131c;color:#fff;overflow:hidden;display:flex;align-items:cent
 .brk{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
 .brk span{font-size:12px;font-weight:700;color:#e6edf3;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 11px}
 .fnote{font-size:10px;color:#7d92a5;margin-top:13px;line-height:1.45}
+.life{flex:1;position:relative;overflow:hidden;background:#0e1924}
+.lp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease}
+.lp.on{opacity:1}
+.lifeveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,25,36,.22) 0%,rgba(14,25,36,.42) 45%,rgba(14,25,36,.95) 100%)}
+.lifetext{position:absolute;left:0;right:0;bottom:0;padding:20px 22px 26px;color:#fff}
 @media(max-height:720px){.phone{max-height:560px}.bubble{font-size:13.5px}.bignum{font-size:38px}}
 </style>
 </head>
@@ -411,13 +416,18 @@ var SCENES=[
 ]},
 /* ===== TU TIEMPO / TU VIDA (lado emocional) ===== */
 { navy:true, ses:'Tu tiempo', raw:true, screen:
-  '<div class="impact">'+
-  '<div class="kick">Y si el papeleo lo haces tú…</div>'+
-  '<div class="lead">No solo cuesta dinero. Te roba horas de tu vida — noches y fines de semana que no vuelven.</div>'+
-  '<div class="bignum gold">+<span class="count" data-to="600" data-suf=" h">0 h</span></div>'+
-  '<div class="unit">al año de vuelta · ≈ 15 h cada semana para ti</div>'+
-  '<div class="brk"><span>👨‍👩‍👧 Tiempo en familia</span><span>😌 Descanso</span><span>🏗️ Más obras</span></div>'+
-  '<div style="margin-top:18px;font-weight:900;font-size:21px;color:#fff">Menos papeleo. <span style="color:#e7c976">Más vida.</span></div>',
+  '<div class="life">'+
+  '<video class="lp on" src="img/vida0.mp4" muted loop playsinline preload="auto"></video>'+
+  '<video class="lp" src="img/vida1.mp4" muted loop playsinline preload="auto"></video>'+
+  '<video class="lp" src="img/vida2.mp4" muted loop playsinline preload="auto"></video>'+
+  '<video class="lp" src="img/vida3.mp4" muted loop playsinline preload="auto"></video>'+
+  '<div class="lifeveil"></div>'+
+  '<div class="lifetext">'+
+    '<div class="kick" style="color:#e7c976">Y si el papeleo lo haces tú…</div>'+
+    '<div class="bignum gold" style="font-size:40px;margin:4px 0 2px">+<span class="count" data-to="600" data-suf=" h">0 h</span></div>'+
+    '<div class="unit">al año de vuelta para ti · ≈ 15 h cada semana</div>'+
+    '<div style="margin-top:14px;font-weight:900;font-size:23px;color:#fff;line-height:1.05">Menos papeleo.<br><span style="color:#e7c976">Más vida.</span></div>'+
+  '</div>',
   steps:[
   {say:"Pero espera, que esto no va solo de dinero. Muchos jefes y autónomos hacen el papeleo ellos mismos, por las noches y los fines de semana."},
   {say:"Esas quince horas a la semana son más de seiscientas horas al año. Tiempo para tu familia, para descansar, o para conseguir más obras. Menos papeleo, y más vida.", adv:"Recupera tu tiempo: lo que de verdad importa."}
@@ -438,7 +448,7 @@ var SCENES=[
 (function(){ var n=0; SCENES.forEach(function(sc){ sc.steps.forEach(function(st){ st.aud=n++; }); }); })();
 var scr=document.getElementById('scr'), nextBtn=document.getElementById('next');
 var pfill=document.getElementById('pfill'), pcount=document.getElementById('pcount'), psession=document.getElementById('psession');
-var si=0, ti=0, timer=null;
+var si=0, ti=0, timer=null, lifeTimer=null;
 function updateProg(){ var pct=Math.round(((si+1)/SCENES.length)*100); pfill.style.width=pct+'%'; pcount.textContent=(si+1)+' / '+SCENES.length; psession.textContent=SCENES[si].ses||'Recorrido'; }
 function clearTimer(){ if(timer){clearTimeout(timer);timer=null;} }
 function fmtNum(n){ return n.toLocaleString('es-ES'); }
@@ -473,6 +483,18 @@ function renderScene(){
   scr.className='scr fade'+((sc.navy||sc.raw)?' navy':'');
   scr.innerHTML=sc.screen;
   if(sc.toast){ var t=document.createElement('div'); t.className='toast'; t.id='scn-toast'; t.style.display='none'; t.innerHTML='<b>🟢</b> '+sc.toast; scr.appendChild(t); }
+  if(lifeTimer){ clearTimeout(lifeTimer); lifeTimer=null; }
+  var lps=scr.querySelectorAll('.lp');
+  if(lps.length>1){
+    var seq=[0,1,2,3], k=0;
+    var tick=function(){
+      lps.forEach(function(v,idx){ if(idx===seq[k]){ v.classList.add('on'); try{ v.currentTime=0; var pp=v.play(); if(pp&&pp.catch)pp.catch(function(){}); }catch(e){} } else { v.classList.remove('on'); try{v.pause();}catch(e){} } });
+      var dwell = (seq[k]===0)?5200:3000;
+      k = (k+1<seq.length)?k+1:1;
+      lifeTimer=setTimeout(tick, dwell);
+    };
+    tick();
+  }
   animateStats();
   ti=0; updateProg(); runStep();
 }
