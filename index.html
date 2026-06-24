@@ -55,8 +55,8 @@ body{background:#0a131c;color:#fff;overflow:hidden;display:flex;align-items:cent
 .island{position:absolute;left:50%;top:7px;transform:translateX(-50%);width:78px;height:17px;background:#000;border-radius:11px}
 .scr{flex:1;overflow:hidden;position:relative;background:var(--g-fondo);display:flex;flex-direction:column}
 .scr.navy{background:radial-gradient(120% 72% at 50% 0,#2c4660 0,#1C2B3A 58%,#142433 100%)}
-.fade{animation:fade .5s cubic-bezier(.22,.61,.36,1)}
-@keyframes fade{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.fade{animation:fade .6s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
 
 .appbar{background:var(--navy);color:#fff;padding:11px 14px 12px;display:flex;align-items:center;gap:9px;flex:0 0 auto}
 .logo-img{height:30px;width:auto;border-radius:7px;display:block;box-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -157,7 +157,7 @@ body{background:#0a131c;color:#fff;overflow:hidden;display:flex;align-items:cent
 .brk span{font-size:12px;font-weight:700;color:#e6edf3;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 11px}
 .fnote{font-size:10px;color:#7d92a5;margin-top:13px;line-height:1.45}
 .life{flex:1;position:relative;overflow:hidden;background:#0e1924}
-.lp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s ease}
+.lp{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
 .lp.on{opacity:1}
 .lifeveil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,25,36,.22) 0%,rgba(14,25,36,.42) 45%,rgba(14,25,36,.95) 100%)}
 .lifetext{position:absolute;left:0;right:0;bottom:0;padding:20px 22px 26px;color:#fff}
@@ -231,11 +231,13 @@ function speak(text, cb){
 var voxEl=new Audio(); voxEl.preload='auto';
 function playLine(idx, text, cb){
   if(muted){ talking(true); var ms=Math.min(9000,1200+(text||'').replace(/<[^>]+>/g,'').length*46); return setTimeout(function(){talking(false); cb&&cb();},ms); }
-  var done=false;
-  var fin=function(){ if(done)return; done=true; voxEl.onended=null; voxEl.onerror=null; talking(false); cb&&cb(); };
-  var fallback=function(){ if(done)return; done=true; voxEl.onended=null; voxEl.onerror=null; speak(text, cb); };
+  var done=false, started=false;
+  var clear=function(){ voxEl.onended=null; voxEl.onerror=null; voxEl.onplaying=null; };
+  var fin=function(){ if(done)return; done=true; clear(); talking(false); cb&&cb(); };
+  var fallback=function(){ if(done||started)return; done=true; clear(); speak(text, cb); };
   try{ speechSynthesis.cancel(); }catch(e){}
-  voxEl.onplaying=function(){ talking(true); };
+  try{ voxEl.pause(); }catch(e){}
+  voxEl.onplaying=function(){ started=true; talking(true); };
   voxEl.onended=fin;
   voxEl.onerror=fallback;
   try{
@@ -415,7 +417,7 @@ var SCENES=[
   {say:"Entre las dos empresas, más de treinta mil euros cada año. No implementarla no es ahorrar: es seguir pagando esto, mes tras mes. Y la app cuesta una fracción.", adv:"No hacer nada también cuesta."}
 ]},
 /* ===== TU TIEMPO / TU VIDA (lado emocional) ===== */
-{ navy:true, ses:'Tu tiempo', raw:true, screen:
+{ navy:true, ses:'Tu tiempo', raw:true, life:true, screen:
   '<div class="life">'+
   '<video class="lp on" src="img/vida0.mp4" muted loop playsinline preload="auto"></video>'+
   '<video class="lp" src="img/vida1.mp4" muted loop playsinline preload="auto"></video>'+
@@ -484,30 +486,28 @@ function renderScene(){
   scr.innerHTML=sc.screen;
   if(sc.toast){ var t=document.createElement('div'); t.className='toast'; t.id='scn-toast'; t.style.display='none'; t.innerHTML='<b>🟢</b> '+sc.toast; scr.appendChild(t); }
   if(lifeTimer){ clearTimeout(lifeTimer); lifeTimer=null; }
-  var lps=scr.querySelectorAll('.lp');
-  if(lps.length>1){
-    var seq=[0,1,2,3], k=0;
-    var tick=function(){
-      lps.forEach(function(v,idx){ if(idx===seq[k]){ v.classList.add('on'); try{ v.currentTime=0; var pp=v.play(); if(pp&&pp.catch)pp.catch(function(){}); }catch(e){} } else { v.classList.remove('on'); try{v.pause();}catch(e){} } });
-      var dwell = (seq[k]===0)?5200:3000;
-      k = (k+1<seq.length)?k+1:1;
-      lifeTimer=setTimeout(tick, dwell);
-    };
-    tick();
-  }
   animateStats();
   ti=0; updateProg(); runStep();
+}
+function lifeShow(only){
+  var lps=scr.querySelectorAll('.lp');
+  lps.forEach(function(v,i){ if(i===only){ v.classList.add('on'); try{ v.currentTime=0; var pp=v.play(); if(pp&&pp.catch)pp.catch(function(){}); }catch(e){} } else { v.classList.remove('on'); try{v.pause();}catch(e){} } });
 }
 function runStep(){
   var sc=SCENES[si], st=sc.steps[ti];
   clearHot(); clearTimer();
+  if(sc.life){
+    if(lifeTimer){ clearTimeout(lifeTimer); lifeTimer=null; }
+    if(ti===0){ lifeShow(0); }                              // agobio mientras habla del papeleo
+    else { var order=[1,2,3], j=0; var tick=function(){ lifeShow(order[j]); j=(j+1)%order.length; lifeTimer=setTimeout(tick,3200); }; tick(); }  // vida cuando habla de la vida
+  }
   say(st.say, st.adv); nextBtn.disabled=false;
   if(st.toast){ var tt=scr.querySelector('#scn-toast'); if(tt) setTimeout(function(){tt.style.display='flex';},700); }
   playLine(st.aud, st.say, function(){
     if(st.hot){ armHot(st.hot, st.hint); timer=setTimeout(goNext, 7000); }
     else if(st.pin){ pinEnter(goNext); }
-    else if(st.reveal){ var e=scr.querySelector(st.reveal); if(e)e.style.display='block'; timer=setTimeout(goNext, 1100); }
-    else { timer=setTimeout(goNext, 1250); }
+    else if(st.reveal){ var e=scr.querySelector(st.reveal); if(e)e.style.display='block'; timer=setTimeout(goNext, 1000); }
+    else { timer=setTimeout(goNext, 850); }
   });
 }
 function goNext(){
@@ -526,7 +526,6 @@ function restart(){ clearTimer(); si=0; ti=0; nextBtn.textContent='Siguiente ▸
 document.getElementById('restart').onclick=restart;
 document.getElementById('startBtn').onclick=function(){
   document.getElementById('intro').style.display='none';
-  if(!muted){ try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){} }
   si=0; renderScene();
 };
 updateProg();
